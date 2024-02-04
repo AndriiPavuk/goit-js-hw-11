@@ -6,7 +6,6 @@ import fetchImages from './js/fetch.js';
 import createsStringOfPageElements from './js/template-page.js';
 
 const galleryRef = document.querySelector('.gallery');
-const moreButtonRef = document.querySelector('.more');
 const formRef = document.querySelector('.form');
 const loaderRef = document.querySelector('.loader');
 
@@ -17,7 +16,6 @@ const lightbox = new SimpleLightbox('.gallery a', {
 });
 
 formRef.addEventListener('submit', loadFirstPageOfGallery);
-moreButtonRef.addEventListener('click', loadOtherGalleryPages);
 
 loaderRef.hidden = true;
 formRef.dataset.page = '1';
@@ -32,25 +30,13 @@ function loadFirstPageOfGallery(e) {
   }
 
   resetGallery();
-  formRef.dataset.page = '1';
-
-  fetchAndDisplayImages();
-}
-
-function loadOtherGalleryPages(e) {
-  e.preventDefault();
-  const currentPage = parseInt(formRef.dataset.page, 10);
-  formRef.dataset.page = (currentPage + 1).toString();
-
-  fetchAndDisplayImages();
 }
 
 function resetGallery() {
-  moreButtonRef.disabled = false;
-  moreButtonRef.textContent = 'More';
-  moreButtonRef.hidden = true;
   loaderRef.hidden = false;
   galleryRef.innerHTML = '';
+  formRef.dataset.page = '1';
+  fetchAndDisplayImages();
 }
 
 function showErrorMessage(message) {
@@ -88,13 +74,6 @@ function handleImageResponse(response) {
     createsStringOfPageElements(response.hits)
   );
   lightbox.refresh();
-
-  if (response.hits.length === 40) moreButtonRef.hidden = false;
-  if (response.hits.length < 40) {
-    moreButtonRef.hidden = false;
-    moreButtonRef.disabled = true;
-    moreButtonRef.textContent = 'Images are over';
-  }
 }
 
 function resetForm() {
