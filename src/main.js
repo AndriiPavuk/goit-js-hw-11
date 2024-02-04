@@ -16,17 +16,15 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-let searchValue = '';
-let page = 1;
-
 formRef.addEventListener('submit', loadFirstPageOfGallery);
 moreButtonRef.addEventListener('click', loadOtherGalleryPages);
 
 loaderRef.hidden = true;
+formRef.dataset.page = '1';
 
 function loadFirstPageOfGallery(e) {
   e.preventDefault();
-  searchValue = e.currentTarget.elements.query.value.trim();
+  const searchValue = e.currentTarget.elements.query.value.trim();
 
   if (searchValue === '') {
     showErrorMessage('Enter anything in the search field!');
@@ -34,17 +32,20 @@ function loadFirstPageOfGallery(e) {
   }
 
   resetGallery();
+  formRef.dataset.page = '1';
 
   fetchAndDisplayImages();
 }
 
 function loadOtherGalleryPages(e) {
   e.preventDefault();
+  const currentPage = parseInt(formRef.dataset.page, 10);
+  formRef.dataset.page = (currentPage + 1).toString();
+
   fetchAndDisplayImages();
 }
 
 function resetGallery() {
-  page = 1;
   moreButtonRef.disabled = false;
   moreButtonRef.textContent = 'More';
   moreButtonRef.hidden = true;
@@ -62,7 +63,9 @@ function showErrorMessage(message) {
 }
 
 function fetchAndDisplayImages() {
-  fetchImages(page, searchValue)
+  const currentPage = parseInt(formRef.dataset.page, 10);
+
+  fetchImages(currentPage, formRef.elements.query.value.trim())
     .then(response => {
       handleImageResponse(response);
     })
@@ -80,7 +83,6 @@ function handleImageResponse(response) {
     return;
   }
 
-  page += 1;
   galleryRef.insertAdjacentHTML(
     'beforeend',
     createsStringOfPageElements(response.hits)
